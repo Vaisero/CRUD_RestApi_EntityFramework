@@ -58,4 +58,33 @@ begin
 	and extract (day from o.date_and_time::date) = extract (day from c.date_of_birth);
 end;
 $$;
+
+- Получить список часов от 00.00 до 24.00 в порядке убывания со средним чеком за каждый час (Средний чек=Сумма заказов/Кол-во заказов) по всем заказам со статусом Выполнен
+
+`
+create or replace function public.AvgSummPerHour_Select()
+returns table(
+	hour text,
+	Avg_Summ bigint
+)
+language 'plpgsql'
+as $$
+	declare
+    _startTime time = '00:00'::time;
+    _counter int = 0;
+begin
+    create temp table _tmps(hour text, avgSumm bigint) on commit drop;
+    while (_counter <> 24) loop
+        insert into _tmps
+        select _startTime::text  || ' - ' ||  _startTime + interval '1 hour', sum(o.amount)/count(o.id)
+        from public.product_order as o
+        inner join public.status as s on s.id = o.status_id
+        where s.id = 3
+        and o.date_and_time::time between _startTime and _startTime + interval '1 hour';
+        _startTime = _startTime + interval '1 hour';
+        _counter = _counter + 1;
+    end loop;
+    return query select * from _tmps;
+end;
+$$;
 `
