@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS public.product_order
         ON DELETE NO ACTION
 )
 `
+
 status:
 `
 CREATE TABLE IF NOT EXISTS public.status
@@ -38,4 +39,23 @@ CREATE TABLE IF NOT EXISTS public.status
     status_name text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT status_pkey PRIMARY KEY (id)
 )
+`
+
+Хранимые процедуры:
+
+- Получить сумму заказов со статусом выполнен по каждому клиенту, произведенных в день рождения клиента
+`
+create or replace function public.OrderSummFromBirthday_select()
+returns bigint
+language 'plpgsql'
+as $$
+begin
+	return sum(o.amount) from product_order as o
+	inner join public.customer as c on c.id = o.customer_id
+	inner join public.status as s on s.id = o.status_id
+	where s.id = 3
+	and extract (month from o.date_and_time::date) = extract (month from c.date_of_birth)
+	and extract (day from o.date_and_time::date) = extract (day from c.date_of_birth);
+end;
+$$;
 `
