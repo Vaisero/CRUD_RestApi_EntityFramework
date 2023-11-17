@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS public.status
 Хранимые процедуры:
 
 - Получить сумму заказов со статусом выполнен по каждому клиенту, произведенных в день рождения клиента
+  
+
 `
 create or replace function public.OrderSummFromBirthday_select()
 returns bigint
@@ -58,6 +60,7 @@ begin
 	and extract (day from o.date_and_time::date) = extract (day from c.date_of_birth);
 end;
 $$;
+`
 
 - Получить список часов от 00.00 до 24.00 в порядке убывания со средним чеком за каждый час (Средний чек=Сумма заказов/Кол-во заказов) по всем заказам со статусом Выполнен
 
