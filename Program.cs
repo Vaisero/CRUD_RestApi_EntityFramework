@@ -1,40 +1,32 @@
-namespace EF_CRUD_REST_API
+using EF_CRUD_REST_API;
+using Microsoft.EntityFrameworkCore;
+
+internal class Program
 {
-    public class Program
+    private static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddControllers();
+
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
+        //подключение к БД
+        builder.Services.AddDbContext<AppDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("ConnectionString")));
+
+        var app = builder.Build();
+
+        if (app.Environment.IsDevelopment())
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddAuthorization();
-
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-
-            app.UseAuthorization();
-
-            var summaries = new[]
-            {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-            app.MapGet("/weatherforecast", (HttpContext httpContext) =>
-            {
-                var forecast = Enumerable.Range(1, 5).Select(index =>
-                    new WeatherForecast
-                    {
-                        Date = DateTime.Now.AddDays(index),
-                        TemperatureC = Random.Shared.Next(-20, 55),
-                        Summary = summaries[Random.Shared.Next(summaries.Length)]
-                    })
-                    .ToArray();
-                return forecast;
-            });
-
-            app.Run();
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
+
+        app.UseAuthorization();
+
+        app.MapControllers();
+
+        app.Run();
     }
 }
