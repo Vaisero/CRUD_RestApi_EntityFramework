@@ -12,8 +12,8 @@ internal class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        //подключение к БД
-        builder.Services.AddDbContext<AppDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("ConnectionString")));
+        //connecting to DB
+        ConfigureServices(builder);
 
         var app = builder.Build();
 
@@ -28,5 +28,13 @@ internal class Program
         app.MapControllers();
 
         app.Run();
+    }
+
+    public static void ConfigureServices(WebApplicationBuilder? builder)
+    {
+        builder.Services.AddControllers();
+
+        builder.Services.AddDbContext<AppDBContext>(options =>
+            options.UseNpgsql(builder.Configuration.GetConnectionString("ConnectionString")));
     }
 }
