@@ -22,7 +22,7 @@ namespace EF_CRUD_REST_API.Controllers
                                                      [FromQuery] int pageNumber = 1,
                                                      [FromQuery] int pageSize = int.MaxValue,
                                                      [FromQuery] long amount = 0,
-                                                     [FromQuery] DateTimeOffset? date_and_time = null,
+                                                     [FromQuery] DateTime? date_and_time = null,
                                                      [FromQuery] short status_id = 0,
                                                      [FromQuery] long customer_id = 0)
         {
@@ -30,14 +30,13 @@ namespace EF_CRUD_REST_API.Controllers
             {
                 return BadRequest("Некорректные значения номера страницы или размера страницы.");
             }
-
-            
+          
             IQueryable<Product_OrderModel> filtered_product_order = _context.product_order;
 
             if (amount != 0) 
                 filtered_product_order = filtered_product_order.Where(c => c.amount.ToString().Contains(amount.ToString()));
             if (date_and_time.HasValue)
-                filtered_product_order = filtered_product_order.Where(c => c.date_and_time.ToLocalTime().ToString().Contains(date_and_time.ToString()));                           
+                filtered_product_order = filtered_product_order.Where(c => c.date_and_time.ToString().Contains(date_and_time.ToString()));                           
             if (status_id != 0)
                 filtered_product_order = filtered_product_order.Where(c => c.status_id.ToString().Contains(status_id.ToString()));
             if (customer_id != 0) 
@@ -46,6 +45,8 @@ namespace EF_CRUD_REST_API.Controllers
 
             var product_orderToReturn = await filtered_product_order
                  .Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            product_orderToReturn.ForEach(x => { x.date_and_time = x.date_and_time.ToLocalTime(); });
 
             return Ok(product_orderToReturn);
         }

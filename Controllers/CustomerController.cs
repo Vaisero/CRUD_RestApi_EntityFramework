@@ -1,10 +1,6 @@
 ﻿using EF_CRUD_REST_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Xml.Linq;
-using System.Linq;
-using Microsoft.VisualBasic;
 
 namespace EF_CRUD_REST_API.Controllers
 {
@@ -23,11 +19,11 @@ namespace EF_CRUD_REST_API.Controllers
         // GET: api/customer
         [HttpGet]
         public async Task<IActionResult> GetCustomer(
-                                                     [FromQuery] int pageNumber = 1, 
+                                                     [FromQuery] int pageNumber = 1,
                                                      [FromQuery] int pageSize = int.MaxValue,
                                                      [FromQuery] string? first_name = null,
                                                      [FromQuery] string? last_name = null,
-                                                     [FromQuery] DateTime? date_of_birth = null)
+                                                     [FromQuery] DateTime date_of_birth = default(DateTime))
         {
             if (pageNumber <= 0 || pageSize <= 0)
             {
@@ -42,16 +38,13 @@ namespace EF_CRUD_REST_API.Controllers
             if (!string.IsNullOrEmpty(last_name))
                 filtered_customer = filtered_customer.Where(c => c.last_name.Contains(last_name));
 
-            if (date_of_birth.HasValue)
+            if (date_of_birth != default(DateTime)) 
             {
-                date_of_birth = date_of_birth.Value.Date;
-                filtered_customer = filtered_customer.Where(c => c.date_of_birth.ToString().Contains(date_of_birth.ToString()));
-            }
-                
-
+                filtered_customer = filtered_customer.Where(x => x.date_of_birth == DateOnly.FromDateTime(date_of_birth));
+            }    
 
             var customerToReturn = await filtered_customer
-                 .Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            .Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
 
             return Ok(customerToReturn);
         }
