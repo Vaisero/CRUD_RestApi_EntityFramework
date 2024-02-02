@@ -1,6 +1,4 @@
-# IT-Pro_TestTask_RestApiEF
-
-*IT-Pro_TestTask_RestApiEF* - тестовое задание  для компании IT-Pro на должность "Backend .NET"
+# CRUD_RestApi_EntityFramework
 
 
 ## Техническое задание
